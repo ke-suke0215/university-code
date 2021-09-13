@@ -115,8 +115,118 @@ int main()
 
         //dtheta①
         m[0][0] = dt * h(vold[0], thetaold[0]);
-        for (s = 1; s < N; s++)
+        for (s = 1; s < N - 1; s++)
         {
+            m[s][0] = dt * h(vold[s], thetaold[s]);
+        }
+        m[N - 1][0] = dt * h(vold[N - 1], thetaold[N - 1]);
+
+        // dx②
+        k[0][1] = dt * f(vold[0] + 0.5 * l[0][0]);
+        for (s = 1; s < N - 1; s++)
+        {
+            k[s][1] = dt * f(vold[s] + 0.5 * l[s][0]);
+        }
+        k[N - 1][1] = dt * f(vold[N - 1] + 0.5 * l[N - 1][0]);
+
+        // dv②
+        l[0][1] = dt * g1(Time + 0.5 * dt, xold0[0], xold[1] * 0.5 * k[1][0], xold[0] + 0.5 * k[0][0], vold[0] + 0.5 * l[0][0], thetaold[0] + 0.5 * m[0][0], a[0], L[0]);
+        for (s = 1; s < N - 1; s++)
+        {
+            l[s][1] = dt * g2(Time + 0.5 * dt, xold0[s], xold[s + 1] * 0.5 * k[s + 1][0], xold[s] + 0.5 * k[s][0], xold[s - 1] + 0.5 * k[s - 1][0], vold[s] + 0.5 * l[s][0], thetaold[s] + 0.5 * m[s][0], a[s], L[s]);
+        }
+        l[N - 1][1] = dt * g3(Time + 0.5 * dt, xold0[N - 1], xold[N - 1] * 0.5 * k[N - 1][0], xold[N - 2] + 0.5 * k[N - 2][0], vold[N - 1] + 0.5 * l[N - 1][0], thetaold[N - 1] + 0.5 * m[N - 1][0], a[N - 1], L[N - 1]);
+
+        //dtheta②
+        m[0][1] = dt * h(vold[0] + 0.5 * l[0][0], thetaold[0] + 0.5 * m[0][0]);
+        for (s = 1; s < N - 1; s++)
+        {
+            m[s][1] = dt * h(vold[s] + 0.5 * l[s][0], thetaold[s] + 0.5 * m[s][0]);
+        }
+        m[N - 1][1] = dt * h(vold[N - 1] + 0.5 * l[N - 1][0], thetaold[N - 1] + 0.5 * m[N - 1][0]);
+
+        // dx③
+        k[0][2] = dt * f(vold[0] + 0.5 * l[0][1]);
+        for (s = 1; s < N - 1; s++)
+        {
+            k[s][2] = dt * f(vold[s] + 0.5 * l[s][1]);
+        }
+        k[N - 1][2] = dt * f(vold[N - 1] + 0.5 * l[N - 1][1]);
+
+        // dv③
+        l[0][2] = dt * g1(Time + 0.5 * dt, xold0[0], xold[1] * 0.5 * k[1][1], xold[0] + 0.5 * k[0][1], vold[0] + 0.5 * l[0][1], thetaold[0] + 0.5 * m[0][1], a[0], L[0]);
+        for (s = 1; s < N - 1; s++)
+        {
+            l[s][2] = dt * g2(Time + 0.5 * dt, xold0[s], xold[s + 1] * 0.5 * k[s + 1][1], xold[s] + 0.5 * k[s][1], xold[s - 1] + 0.5 * k[s - 1][1], vold[s] + 0.5 * l[s][1], thetaold[s] + 0.5 * m[s][1], a[s], L[s]);
+        }
+        l[N - 1][2] = dt * g3(Time + 0.5 * dt, xold0[N - 1], xold[N - 1] * 0.5 * k[N - 1][1], xold[N - 2] + 0.5 * k[N - 2][1], vold[N - 1] + 0.5 * l[N - 1][1], thetaold[N - 1] + 0.5 * m[N - 1][1], a[N - 1], L[N - 1]);
+
+        //dtheta③
+        m[0][2] = dt * h(vold[0] + 0.5 * l[0][1], thetaold[0] + 0.5 * m[0][1]);
+        for (s = 1; s < N - 1; s++)
+        {
+            m[s][2] = dt * h(vold[s] + 0.5 * l[s][1], thetaold[s] + 0.5 * m[s][1]);
+        }
+        m[N - 1][2] = dt * h(vold[N - 1] + 0.5 * l[N - 1][1], thetaold[N - 1] + 0.5 * m[N - 1][1]);
+
+        // 左端のブロック（j=1）
+        xnew[0] = xold[0] * (1.0 / 6.0) * (k[0][0] + 2.0 * k[0][1] + 2.0 * k[0][2] + k[0][3]);
+        vnew[0] = vold[0] * (1.0 / 6.0) * (l[0][0] + 2.0 * l[0][1] + 2.0 * l[0][2] + l[0][3]);
+        thetanew[0] = thetaold[0] * (1.0 / 6.0) * (m[0][0] + 2.0 * m[0][1] + 2.0 * m[0][2] + m[0][3]);
+
+        // 逆方向に滑るのを防ぐため
+        if (vnew[0] < zero)
+        {
+            vnew[0] = 0.0;
+        }
+
+        // 真ん中のブロック（j=2~4）
+        for (s = 1; s < N - 1; s++)
+        {
+            xnew[s] = xold[s] * (1.0 / 6.0) * (k[s][0] + 2.0 * k[s][1] + 2.0 * k[s][2] + k[s][3]);
+            vnew[s] = vold[s] * (1.0 / 6.0) * (l[s][0] + 2.0 * l[s][1] + 2.0 * l[s][2] + l[s][3]);
+            thetanew[s] = thetaold[s] * (1.0 / 6.0) * (m[s][0] + 2.0 * m[s][1] + 2.0 * m[s][2] + m[s][3]);
+
+            if (vnew[s] < zero)
+            {
+                vnew[s] = 0.0;
+            }
+        }
+
+        // 右端のブロック（j=5）
+        xnew[N - 1] = xold[N - 1] * (1.0 / 6.0) * (k[N - 1][0] + 2.0 * k[N - 1][1] + 2.0 * k[N - 1][2] + k[N - 1][3]);
+        vnew[N - 1] = vold[N - 1] * (1.0 / 6.0) * (l[N - 1][0] + 2.0 * l[N - 1][1] + 2.0 * l[N - 1][2] + l[N - 1][3]);
+        thetanew[N - 1] = thetaold[N - 1] * (1.0 / 6.0) * (m[N - 1][0] + 2.0 * m[N - 1][1] + 2.0 * m[N - 1][2] + m[N - 1][3]);
+
+        if (vnew[N - 1] < zero)
+        {
+            vnew[N - 1] = 0.0;
+        }
+
+        // データを減らすため
+        if (M % 100000 == 0)
+        {
+            // ファイルに出力
+            fprintf(OUTPUTFILE3, "%25.22lf %d %25.22lf\n", Time + dt, s + 1, (vnew[99] - vold[99]) * pow(10.0, 6.0));
+            for (s = 0; s <= N - 1; s++)
+            {
+                fprintf(OUTPUTFILE1, "%25.22lf %d %25.22lf\n", Time + dt, s + 1, xnew[s] - xold0[N - 1] * (s + 1) * 0.005);
+                fprintf(OUTPUTFILE1, "%25.22lf %d %25.22lf\n", Time + dt, s + 1, vnew[s]);
+                fprintf(OUTPUTFILE1, "%25.22lf %d %25.22lf\n", Time + dt, s + 1, thetanew[s]);
+                printf("%25.22lf\n", Time); //計算機で計算中にどこまで計算が終わったか見るため
+            }
+        }
+
+        for (s = 0; s <= N - 1; s++)
+        {
+            xold[s] = xnew[s];
+            vold[s] = vnew[s];
+            thetaold[s] = thetanew[s];
+        }
+
+        if (maxt < Time)
+        {
+            break;
         }
     }
 
@@ -135,6 +245,7 @@ double f(double v1)
 }
 
 // dv
+// 左端のブロック
 double g1(double t, double x0, double x2, double x1, double v1, double theta1, double a, double L)
 {
     if (v1 == 0)
@@ -154,14 +265,47 @@ double g1(double t, double x0, double x2, double x1, double v1, double theta1, d
     }
 }
 
+// 真ん中のブロック
 double g2(double t, double x0, double x3, double x2, double x1, double v2, double theta2, double a, double L)
 {
+    if (v2 == 0)
+    {
+        if (vplate * t - (x2 - x0) + L * (x3 - 2.0 * x2 + x1) - (c + a * log(1.0 + (v2 / v)) + b * log(theta2)) > 0)
+        {
+            return vplate * t - (x2 - x0) + L * (x3 - 2.0 * x2 + x1) - (c + a * log(1.0 + (v2 / v)) + b * log(theta2));
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        return vplate * t - (x2 - x0) + L * (x3 - 2.0 * x2 + x1) - (c + a * log(1.0 + (v2 / v)) + b * log(theta2)) * v2 / fabs(v2);
+    }
 }
 
+// 右端のブロック
 double g3(double t, double x0, double x2, double x1, double v2, double theta2, double a, double L)
 {
+    if (v2 == 0)
+    {
+        if (vplate * t - (x2 - x0) + L * (x1 - x2 + d) - (c + a * log(1.0 + (v2 / v)) + b * log(theta2)) > 0)
+        {
+            return vplate * t - (x2 - x0) + L * (x1 - x2 + d) - (c + a * log(1.0 + (v2 / v)) + b * log(theta2));
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        return vplate * t - (x2 - x0) + L * (x1 - x2 + d) - (c + a * log(1.0 + (v2 / v)) + b * log(theta2)) * v2 / fabs(v2);
+    }
 }
 
 double h(double v1, double theta1)
 {
+    return 1.0 - (v1 * theta1);
 }
