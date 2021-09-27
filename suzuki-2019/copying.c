@@ -62,18 +62,20 @@ int main()
 
     for (s = 1; s < N; s++)
     {
+        // 0~1の乱数
         i = (double)rand() / (double)RAND_MAX;
-
+        // 1つ前のブロックの位置に i を足して初期配置のズレを作る
         xold0[s] = i + xold0[s - 1];
     }
-    xold[0] = 0.0;
 
+    // xold0の配列をxoldに代入
+    xold[0] = 0.0;
     for (s = 1; s < N; s++)
     {
         xold[s] = xold0[s];
     }
 
-    // 値の代入
+    // 値の代入 N(200)回のループ
     for (s = 0; s < N; s++)
     {
         vold[s] = pow(10.0, -4.0);
@@ -95,6 +97,7 @@ int main()
 
     for (Time = T; Time < maxt; Time += dt)
     {
+        // ループ回した回数
         M++;
 
         // dx①
