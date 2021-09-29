@@ -10,6 +10,9 @@ double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l
 // main外に記述する関数を定義
 double determine_friction_direction(double others, double friction, double v);
 double g_left(double t, double x_i, double x_i0, double x_ip1, double v, double theta, double param_a, double l);
+double g_inside(double t, double x_i, double x_i0, double x_im1, double x_ip1, double v, double theta, double param_a, double l);
+double g_right(double t, double x_i, double x_i0, double x_im1, double v, double theta, double param_a, double l);
+double h(double v, double theta);
 
 int main()
 {
@@ -39,13 +42,13 @@ int main()
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
   ////////// 値の代入終了 ////////////
-  printf("関数を用いて計算：\t%.10f\n", g_left(100.0, 2.0, 1.0, 3.0, 1.0, 1000.0, 0.1, 0.2));
-  // printf("%.10f\n", g_left(100.0, 2.0, 1.0, 3.0, 0.0, 1000.0, 0.1, 0.2));
+  double g_left_num = g_left(100.0, 2.0, 1.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
+  printf("g_left：%.10f\n", g_left_num);
 }
 
-//////////////////////////////////////////
-/// ルンゲクッタ法で使用する方程式を返す関数 ///
-//////////////////////////////////////////
+//////////////////////////////////////////////
+/// ルンゲクッタ法で使用する方程式を返す関数を記述 ///
+//////////////////////////////////////////////
 
 // dxの方程式を返す関数
 double
@@ -55,12 +58,11 @@ f(double v)
 }
 
 // 3つのdvの方程式の関数で使用する、摩擦の進行方向に対して摩擦の有無と向きを決める関数
-// 引数は運動方程式とブロックの速度
+// 引数は運動方程式の摩擦以外の部分（others）、運動方程式の摩擦部分（friction）、ブロックの速度(v)
 double determine_friction_direction(double others, double friction, double v)
 {
   if (v == 0)
   {
-    printf("vが0でした\n");
     if (others - friction > 0)
     {
       return (others - friction);
@@ -72,7 +74,6 @@ double determine_friction_direction(double others, double friction, double v)
   }
   else
   {
-    printf("vは動いています\n");
     return others - friction * v / fabs(v);
   }
 }
@@ -107,6 +108,7 @@ double g_right(double t, double x_i, double x_i0, double x_im1, double v, double
 }
 
 // dθの方程式を返す関数
-double h()
+double h(double v, double theta)
 {
+  return 1.0 - (v * theta);
 }
