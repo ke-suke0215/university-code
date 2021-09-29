@@ -16,10 +16,20 @@ double h(double v, double theta);
 
 int main()
 {
-  int cal_count, s; // sはfor文で使用する変数
+  // cal_count:ループの回数を格納する変数、s:for文で使用する変数
+  int cal_count, s;
+
+  //ブロックの位置、速度、状態変数の長さNの配列
+  double x_old[N], x_new[N], v_old[N], v_new[N], theta_old[N], theta_new[N];
+
+  // ルンゲクッタ法で使用するk,l,mの値を格納する N×4 の配列
+  double rk_k[N][4], rk_l[N][4], rk_m[N][4];
+
+  // 通常の地震とゆっくり地震を判断するためのパラメータaとばね定数lを格納する配列
+  double param_a[N], l[N];
 
   ///////////////////////////////////
-  /// 定義したグローバル変数に値を代入 ///
+  /// 定義した変数に値を代入 ///
   ///////////////////////////////////
 
   param_a_general = pow(10.0, -5.0); // 通常の地震の摩擦パラメータa
@@ -40,6 +50,27 @@ int main()
   dt = pow(10.0, -6.0);    // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
+
+  ////// 通常の地震とゆっくり地震が起こるパラメータを代入 ///////
+  //////            半分通常、半分ゆっくり            ///////
+  for (s = 0; s < N; s++)
+  {
+    if (s < N / 2)
+    {
+      param_a[s] = param_a_general;
+      l[s] = l_general;
+    }
+    else if (s >= N / 2)
+    {
+      param_a[s] = param_a_slow;
+      l[s] = l_slow;
+    }
+    else
+    {
+      printf("不適切な値で計算が行われています。");
+      return 0;
+    }
+  }
 
   ////////// 値の代入終了 ////////////
   double g_left_num = g_left(100.0, 2.0, 1.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
