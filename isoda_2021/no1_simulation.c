@@ -5,7 +5,7 @@
 
 // グローバル変数を定義
 int N = 200; // ブロック数
-double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, time_measure, t_start, t_max, dt, zero;
+double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, time_measure, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
 double determine_friction_direction(double others, double friction, double v);
@@ -28,9 +28,9 @@ int main()
   // 通常の地震とゆっくり地震を判断するためのパラメータaとばね定数lを格納する配列
   double param_a[N], l[N];
 
-  ///////////////////////////////////
+  ///////////////////////////
   /// 定義した変数に値を代入 ///
-  ///////////////////////////////////
+  ///////////////////////////
 
   param_a_general = pow(10.0, -5.0); // 通常の地震の摩擦パラメータa
   param_a_slow = pow(10.0, -1.0);    // ゆっくり地震の摩擦パラメータa
@@ -72,7 +72,42 @@ int main()
     }
   }
 
+  x_old[0] = 0.0;
+  // 初期位置(x_old）を1つ前のブロックから0~1離れた位置にする
+  // N=200の場合、ブロック全体の長さは 100±5 程度に収まる
+  for (s = 1; s < N; s++)
+  {
+    // 0~1の乱数を random_num に代入
+    random_num = (double)rand() / (double)RAND_MAX;
+    x_old[s] = x_old[s - 1] + random_num;
+  }
+
+  // x_old以外の初期状態（v_old, theta_old）に定数を代入し、次の状態を表す変数（x_new, v_new, theta_new）に0を代入
+  for (s = 0; s < N; s++)
+  {
+    x_new[s] = 0.0;
+    v_old[s] = pow(10.0, -4.0);
+    v_new[s] = 0.0;
+    theta_old[s] = pow(10.0, 3.0);
+    theta_new[s] = 0.0;
+  }
+
+  //////////////////////////////////
   ////////// 値の代入終了 ////////////
+  //////////////////////////////////
+
+  // データを記述するファイルの作成
+
+  // FILE *OUTPUTFILE1;
+  // FILE *OUTPUTFILE2;
+  // FILE *OUTPUTFILE3;
+  // FILE *OUTPUTFILE4;
+
+  // OUTPUTFILE1 = fopen("region410x.txt", "w");
+  // OUTPUTFILE2 = fopen("region410y.txt", "w");
+  // OUTPUTFILE3 = fopen("region410f.txt", "w");
+  // OUTPUTFILE4 = fopen("region410t.txt", "w");
+
   double g_left_num = g_left(100.0, 2.0, 1.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
   printf("g_left：%.10f\n", g_left_num);
 }
