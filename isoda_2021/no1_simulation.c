@@ -5,13 +5,14 @@
 
 // グローバル変数を定義
 int N = 200; // ブロック数
-double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, time_measure, t_start, t_max, dt, zero, random_num;
+double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, time, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
+double f(double v);
 double determine_friction_direction(double others, double friction, double v);
-double g_left(double t, double x_i, double x_i0, double x_ip1, double v, double theta, double param_a, double l);
-double g_inside(double t, double x_i, double x_i0, double x_im1, double x_ip1, double v, double theta, double param_a, double l);
-double g_right(double t, double x_i, double x_i0, double x_im1, double v, double theta, double param_a, double l);
+double g_left(double t, double x_i0, double x_i, double x_ip1, double v, double theta, double param_a, double l);
+double g_inside(double t, double x_i0, double x_im1, double x_i, double x_ip1, double v, double theta, double param_a, double l);
+double g_right(double t, double x_i0, double x_im1, double x_i, double v, double theta, double param_a, double l);
 double h(double v, double theta);
 
 int main()
@@ -44,23 +45,22 @@ int main()
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
 
-  time_measure = 0.0;      // 時間計測用変数
+  time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
   t_max = 250.0;           // 計測終了時間
   dt = pow(10.0, -6.0);    // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
-  ////// 通常の地震とゆっくり地震が起こるパラメータを代入 ///////
-  //////            半分通常、半分ゆっくり            ///////
+  // 通常の地震とゆっくり地震が起こるパラメータを代入
   for (s = 0; s < N; s++)
   {
-    if (s < N / 2)
+    if (s < N / 2) // 通常の地震
     {
       param_a[s] = param_a_general;
       l[s] = l_general;
     }
-    else if (s >= N / 2)
+    else if (s >= N / 2) // ゆっくり地震
     {
       param_a[s] = param_a_slow;
       l[s] = l_slow;
@@ -72,29 +72,41 @@ int main()
     }
   }
 
+  // x_old, x_new に初期位置を代入する
   x_old[0] = 0.0;
-  // 初期位置(x_old）を1つ前のブロックから0~1離れた位置にする
+  x_new[0] = 0.0;
   // N=200の場合、ブロック全体の長さは 100±5 程度に収まる
   for (s = 1; s < N; s++)
   {
     // 0~1の乱数を random_num に代入
     random_num = (double)rand() / (double)RAND_MAX;
     x_old[s] = x_old[s - 1] + random_num;
+    x_new[s] = x_new[s - 1] + random_num;
   }
 
-  // x_old以外の初期状態（v_old, theta_old）に定数を代入し、次の状態を表す変数（x_new, v_new, theta_new）に0を代入
+  // 速さと状態変数の初期値を代入
   for (s = 0; s < N; s++)
   {
-    x_new[s] = 0.0;
     v_old[s] = pow(10.0, -4.0);
     v_new[s] = 0.0;
     theta_old[s] = pow(10.0, 3.0);
     theta_new[s] = 0.0;
   }
+  ////////// 値の代入終了 ////////////
 
   //////////////////////////////////
-  ////////// 値の代入終了 ////////////
+  ///// ブロックを動かすループ開始 /////
   //////////////////////////////////
+  for (time = t_start; time < t_max; time += dt)
+  {
+    cal_count++; // ループの回数を記録
+
+    ////////////////////////////////////////////////////////////////////
+    ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
+    ////////////////////////////////////////////////////////////////////
+
+    // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
+  }
 
   // データを記述するファイルの作成
 
@@ -110,6 +122,12 @@ int main()
 
   double g_left_num = g_left(100.0, 2.0, 1.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
   printf("g_left：%.10f\n", g_left_num);
+
+  // ファイルへの記述を終了
+  // fclose(OUTPUTFILE1);
+  // fclose(OUTPUTFILE2);
+  // fclose(OUTPUTFILE3);
+  // fclose(OUTPUTFILE4);
 }
 
 //////////////////////////////////////////////
@@ -145,7 +163,7 @@ double determine_friction_direction(double others, double friction, double v)
 }
 
 // dv(左のブロック)の方程式を返す関数
-double g_left(double t, double x_i, double x_i0, double x_ip1, double v, double theta, double param_a, double l)
+double g_left(double t, double x_i0, double x_i, double x_ip1, double v, double theta, double param_a, double l)
 {
   // 運動方程式の摩擦以外の部分を定義 （vによって摩擦の値が変更される場合があるため）
   double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_ip1 - x_i - d);
@@ -156,7 +174,7 @@ double g_left(double t, double x_i, double x_i0, double x_ip1, double v, double 
 }
 
 // dv(左右以外のブロック)の方程式を返す関数
-double g_inside(double t, double x_i, double x_i0, double x_im1, double x_ip1, double v, double theta, double param_a, double l)
+double g_inside(double t, double x_i0, double x_im1, double x_i, double x_ip1, double v, double theta, double param_a, double l)
 {
   double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_ip1 - 2.0 * x_i - x_im1);
   double friction = param_c + param_a * log(1 + v / special_v) + param_b * log(theta);
@@ -165,7 +183,7 @@ double g_inside(double t, double x_i, double x_i0, double x_im1, double x_ip1, d
 }
 
 // dv(右のブロック)の方程式を返す関数
-double g_right(double t, double x_i, double x_i0, double x_im1, double v, double theta, double param_a, double l)
+double g_right(double t, double x_i0, double x_im1, double x_i, double v, double theta, double param_a, double l)
 {
   double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_im1 - x_i + d);
   double friction = param_c + param_a * log(1 + v / special_v) + param_b * log(theta);

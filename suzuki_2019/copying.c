@@ -233,8 +233,6 @@ int main()
         }
     }
 
-    //一旦書くのやめた
-
     fclose(OUTPUTFILE1);
     fclose(OUTPUTFILE2);
     fclose(OUTPUTFILE3);
