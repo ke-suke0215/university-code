@@ -5,7 +5,7 @@
 
 // グローバル変数を定義
 int N = 200; // ブロック数
-double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, time, t_start, t_max, dt, zero, random_num;
+double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, Time, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
 double f(double v);
@@ -20,7 +20,7 @@ int main()
   // cal_count:ループの回数を格納する変数、s:for文で使用する変数
   int cal_count, s;
 
-  //ブロックの位置、速度、状態変数の長さNの配列
+  //ブロックの初期位置、位置、速度、状態変数の長さNの配列
   double x_initial[N], x[N], v[N], theta[N];
 
   // ルンゲクッタ法で使用するk,l,mの値を格納する N×4 の配列
@@ -45,16 +45,18 @@ int main()
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
 
-  time = 0.0;              // 時間計測用変数
+  Time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
   t_max = 250.0;           // 計測終了時間
   dt = pow(10.0, -6.0);    // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
-  // 通常の地震とゆっくり地震が起こるパラメータを代入
+  // 各ブロックに対応する値をN回ループを回して代入
   for (s = 0; s < N; s++)
   {
+    /////// 通常の地震とゆっくり地震が起こるパラメータを代入 ///////
+
     if (s < N / 2) // 通常の地震
     {
       param_a[s] = param_a_general;
@@ -70,32 +72,38 @@ int main()
       printf("不適切な値で計算が行われています。");
       return 0;
     }
-  }
 
-  // x_initial, x に初期位置を代入する
-  x_initial[0] = 0.0;
-  x[0] = 0.0;
-  // N=200の場合、ブロック全体の長さは 100±5 程度に収まる
-  for (s = 1; s < N; s++)
-  {
-    // 0~1の乱数を random_num に代入
-    random_num = (double)rand() / (double)RAND_MAX;
-    x_initial[s] = x_initial[s - 1] + random_num;
-    x[s] = x[s - 1] + random_num;
-  }
+    //////// x_initial, x, v, θ に値を代入 ////////
 
-  // 速さと状態変数の初期値を代入
-  for (s = 0; s < N; s++)
-  {
+    // v,θは初期値は全て0
     v[s] = 0.0;
     theta[s] = 0.0;
+
+    // x_initial と x は1つ目のブロックは0、それ以降は0~1の乱数を用いて値を代入
+    if (s == 0)
+    {
+      x_initial[0] = 0.0;
+      x[0] = 0.0;
+    }
+    else
+    {
+      random_num = (double)rand() / (double)RAND_MAX;
+      x_initial[s] = x_initial[s - 1] + random_num;
+      x[s] = x[s - 1] + random_num;
+    }
   }
+
+  printf("x_initila:%f\n", x_initial[N - 1]);
+  printf("x:%f\n", x[N - 1]);
+  printf("v:%f\n", v[N - 1]);
+  printf("θ:%f\n", theta[N - 1]);
+
   ////////// 値の代入終了 ////////////
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
   //////////////////////////////////
-  for (time = t_start; time < t_max; time += dt)
+  for (Time = t_start; Time < t_max; Time += dt)
   {
     cal_count++; // ループの回数を記録
 
