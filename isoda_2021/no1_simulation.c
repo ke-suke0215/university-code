@@ -21,7 +21,7 @@ int main()
   int cal_count, s;
 
   //ブロックの位置、速度、状態変数の長さNの配列
-  double x_old[N], x_new[N], v_old[N], v_new[N], theta_old[N], theta_new[N];
+  double x_initial[N], x[N], v[N], theta[N];
 
   // ルンゲクッタ法で使用するk,l,mの値を格納する N×4 の配列
   double rk_k[N][4], rk_l[N][4], rk_m[N][4];
@@ -72,25 +72,23 @@ int main()
     }
   }
 
-  // x_old, x_new に初期位置を代入する
-  x_old[0] = 0.0;
-  x_new[0] = 0.0;
+  // x_initial, x に初期位置を代入する
+  x_initial[0] = 0.0;
+  x[0] = 0.0;
   // N=200の場合、ブロック全体の長さは 100±5 程度に収まる
   for (s = 1; s < N; s++)
   {
     // 0~1の乱数を random_num に代入
     random_num = (double)rand() / (double)RAND_MAX;
-    x_old[s] = x_old[s - 1] + random_num;
-    x_new[s] = x_new[s - 1] + random_num;
+    x_initial[s] = x_initial[s - 1] + random_num;
+    x[s] = x[s - 1] + random_num;
   }
 
   // 速さと状態変数の初期値を代入
   for (s = 0; s < N; s++)
   {
-    v_old[s] = pow(10.0, -4.0);
-    v_new[s] = 0.0;
-    theta_old[s] = pow(10.0, 3.0);
-    theta_new[s] = 0.0;
+    v[s] = 0.0;
+    theta[s] = 0.0;
   }
   ////////// 値の代入終了 ////////////
 
