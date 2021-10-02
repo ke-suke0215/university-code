@@ -45,10 +45,11 @@ int main()
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
 
-  Time = 0.0;              // 時間計測用変数
-  t_start = 100.0;         // 計測開始時間
-  t_max = 250.0;           // 計測終了時間
-  dt = pow(10.0, 1.0);     // 時間の刻み幅
+  Time = 0.0;      // 時間計測用変数
+  t_start = 100.0; // 計測開始時間
+  t_max = 250.0;   // 計測終了時間
+  // dt = pow(10.0, -6);     // 時間の刻み幅
+  dt = 1.0;
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
@@ -57,21 +58,25 @@ int main()
   {
     /////// 通常の地震とゆっくり地震が起こるパラメータを代入 ///////
 
-    if (s < N / 2) // 通常の地震
-    {
-      param_a[s] = param_a_general;
-      l[s] = l_general;
-    }
-    else if (s >= N / 2) // ゆっくり地震
-    {
-      param_a[s] = param_a_slow;
-      l[s] = l_slow;
-    }
-    else
-    {
-      printf("不適切な値で計算が行われています。");
-      return 0;
-    }
+    // if (s < N / 2) // 通常の地震
+    // {
+    //   param_a[s] = param_a_general;
+    //   l[s] = l_general;
+    // }
+    // else if (s >= N / 2) // ゆっくり地震
+    // {
+    //   param_a[s] = param_a_slow;
+    //   l[s] = l_slow;
+    // }
+    // else
+    // {
+    //   printf("不適切な値で計算が行われています。");
+    //   return 0;
+    // }
+
+    //とりあえず全てゆっくり地震
+    param_a[s] = param_a_slow;
+    l[s] = l_slow;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -94,12 +99,33 @@ int main()
 
   ////////// 値の代入終了 ////////////
 
+  // データを記述するファイルの作成
+
+  FILE *OUTPUTFILE1;
+  FILE *OUTPUTFILE2;
+  FILE *OUTPUTFILE3;
+
+  // FILE *OUTPUTFILE1;
+  // FILE *OUTPUTFILE2;
+  // FILE *OUTPUTFILE3;
+  // FILE *OUTPUTFILE4;
+
+  OUTPUTFILE1 = fopen("output/x.txt", "w");
+  OUTPUTFILE2 = fopen("output/v.txt", "w");
+  OUTPUTFILE3 = fopen("output/theta.txt", "w");
+
+  // OUTPUTFILE1 = fopen("region410x.txt", "w");
+  // OUTPUTFILE2 = fopen("region410y.txt", "w");
+  // OUTPUTFILE3 = fopen("region410f.txt", "w");
+  // OUTPUTFILE4 = fopen("region410t.txt", "w");
+
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
   //////////////////////////////////
   for (Time = t_start; Time < t_max; Time += dt)
   {
     cal_count++; // ループの回数を記録
+    printf("%f\t", Time);
 
     ////////////////////////////////////////////////////////////////////
     ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
@@ -108,7 +134,6 @@ int main()
     /////////////////////////////
     ///// k1, l1, m1 を代入 //////
     /////////////////////////////
-    Time = 100;
 
     // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
     for (s = 0; s < N; s++) // k1を代入
@@ -226,21 +251,44 @@ int main()
     }
 
     ///// k4, l4, m4 代入終了 //////
+
+    ///////////////////////////////////////
+    ///// k,l,m を用いて次の x,v,θ を計算/////
+    ///////////////////////////////////////
+
+    for (s = 0; s < N; s++)
+    {
+      x[s] = x[s] + (1.0 / 6.0) * (rk_k[s][0] + 2.0 * rk_k[s][1] + 2.0 * rk_k[s][2] + rk_k[s][3]);
+      v[s] = v[s] + (1.0 / 6.0) * (rk_l[s][0] + 2.0 * rk_l[s][1] + 2.0 * rk_l[s][2] + rk_l[s][3]);
+      theta[s] = theta[s] + (1.0 / 6.0) * (rk_m[s][0] + 2.0 * rk_m[s][1] + 2.0 * rk_m[s][2] + rk_m[s][3]);
+
+      // 逆方向へ滑るのを防ぐため
+      if (v[s] < zero)
+      {
+        v[s] = 0.0;
+      }
+    }
+    ///// 計算終了 /////
+
+    ///////////////////////////
+    ///// ファイルに値を出力 /////
+    ///////////////////////////
+
+    // とりあえず1つ目のブロックのみ出力
+    fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, x[0]);
+    fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
+    fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, theta[0]);
+    if (t_max < Time)
+    {
+      break;
+    }
   }
 
-  // データを記述するファイルの作成
-
-  // FILE *OUTPUTFILE1;
-  // FILE *OUTPUTFILE2;
-  // FILE *OUTPUTFILE3;
-  // FILE *OUTPUTFILE4;
-
-  // OUTPUTFILE1 = fopen("region410x.txt", "w");
-  // OUTPUTFILE2 = fopen("region410y.txt", "w");
-  // OUTPUTFILE3 = fopen("region410f.txt", "w");
-  // OUTPUTFILE4 = fopen("region410t.txt", "w");
-
   // ファイルへの記述を終了
+  fclose(OUTPUTFILE1);
+  fclose(OUTPUTFILE2);
+  fclose(OUTPUTFILE3);
+
   // fclose(OUTPUTFILE1);
   // fclose(OUTPUTFILE2);
   // fclose(OUTPUTFILE3);
