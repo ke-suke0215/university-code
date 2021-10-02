@@ -48,7 +48,7 @@ int main()
   Time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
   t_max = 250.0;           // 計測終了時間
-  dt = pow(10.0, -6.0);    // 時間の刻み幅
+  dt = pow(10.0, 1.0);     // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
@@ -75,9 +75,8 @@ int main()
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
-    // v,θは初期値は全て0
-    v[s] = 0.0;
-    theta[s] = 0.0;
+    v[s] = pow(10.0, -4.0);
+    theta[s] = pow(10.0, 3.0);
 
     // x_initial と x は1つ目のブロックは0、それ以降は0~1の乱数を用いて値を代入
     if (s == 0)
@@ -98,38 +97,67 @@ int main()
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
   //////////////////////////////////
-  for (Time = t_start; Time < t_max; Time += dt)
+  // for (Time = t_start; Time < t_max; Time += dt)
+  // {
+  //   cal_count++; // ループの回数を記録
+
+  ////////////////////////////////////////////////////////////////////
+  ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
+  ////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////
+  ///// k1, l1, m1 を代入 //////
+  /////////////////////////////
+  Time = 100;
+
+  // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
+  for (s = 0; s < N; s++) // k1を代入
   {
-    cal_count++; // ループの回数を記録
-
-    ////////////////////////////////////////////////////////////////////
-    ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
-    ////////////////////////////////////////////////////////////////////
-
-    // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
-    for (s = 0; s < N; s++)
+    rk_k[s][0] = dt * f(v[s]);
+  }
+  for (s = 0; s < N; s++) // k1を代入
+  {
+    if (s == 0) // 左のブロック
     {
-      rk_k[s][0] = dt * f(v[s]); // k1を代入
-
-      if (s == 0) // l1を代入(左のブロック)
-      {
-        printf("左のブロック");
-        rk_l[s][0] = dt * g_left(Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
-      }
-      else if (s == N - 1) // l1を代入(右のブロック)
-      {
-        printf("右のブロック");
-        rk_l[s][0] = dt * g_right(Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
-      }
-      else
-      {
-        printf("i"); // l1を代入(左右以外のブロック)
-        rk_l[s][0] = dt * g_inside(Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
-      }
-
-      rk_m[s][0] = dt * h(v[s], theta[s]); // m1を代入
+      // printf("time:%f\tx_0:%f\tx_i:%f\tx_ip1:%f\tv:%f\ttheta:%f\tparam_a:%f\tl:%f\n", Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      rk_l[s][0] = dt * g_left(Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+    }
+    else if (s == N - 1) // 右のブロック
+    {
+      // printf("time:%f\tx_0:%f\tx_im1:%f\tx_i:%f\tv:%f\ttheta:%f\tparam_a:%f\tl:%f\n", Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
+      rk_l[s][0] = dt * g_right(Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
+    }
+    else // 左右以外のブロック
+    {
+      // printf("time:%f\tx_0:%f\tx_im1:%f\tx_i:%f\tx_ip1:%f\tv:%f\ttheta:%f\tparam_a:%f\tl:%f\n", Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      rk_l[s][0] = dt * g_inside(Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
     }
   }
+  for (s = 0; s < N; s++) // m1を代入
+  {
+    rk_m[s][0] = dt * h(v[s], theta[s]);
+  }
+
+  ///// k1, l1, m1 代入終了 //////
+
+  /////////////////////////////
+  ///// k2, l2, m2 を代入 //////
+  /////////////////////////////
+
+  ///// k2, l2, m2 代入終了 //////
+
+  /////////////////////////////
+  ///// k3, l3, m3 を代入 //////
+  /////////////////////////////
+
+  ///// k3, l3, m3 代入終了 //////
+
+  /////////////////////////////
+  ///// k4, l4, m4 を代入 //////
+  /////////////////////////////
+
+  ///// k4, l4, m4 代入終了 //////
+  // }
 
   // データを記述するファイルの作成
 
@@ -142,9 +170,6 @@ int main()
   // OUTPUTFILE2 = fopen("region410y.txt", "w");
   // OUTPUTFILE3 = fopen("region410f.txt", "w");
   // OUTPUTFILE4 = fopen("region410t.txt", "w");
-
-  double g_left_num = g_left(100.0, 1.0, 2.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
-  printf("g_left：%.10f\n", g_left_num);
 
   // ファイルへの記述を終了
   // fclose(OUTPUTFILE1);
@@ -190,20 +215,16 @@ double g_left(double t, double x_i0, double x_i, double x_ip1, double v, double 
 {
   // 運動方程式の摩擦以外の部分を定義 （vによって摩擦の値が変更される場合があるため）
   double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_ip1 - x_i - d);
-  printf("摩擦以外:%f", other_than_friction);
   // 運動方程式の摩擦力の部分を定義
   double friction = param_c + param_a * log(1 + v / special_v) + param_b * log(theta);
-  printf("摩擦:%f\n", friction);
-
   return determine_friction_direction(other_than_friction, friction, v);
 }
 
 // dv(左右以外のブロック)の方程式を返す関数
 double g_inside(double t, double x_i0, double x_im1, double x_i, double x_ip1, double v, double theta, double param_a, double l)
 {
-  double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_ip1 - 2.0 * x_i - x_im1);
+  double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_ip1 - 2.0 * x_i + x_im1);
   double friction = param_c + param_a * log(1 + v / special_v) + param_b * log(theta);
-
   return determine_friction_direction(other_than_friction, friction, v);
 }
 
@@ -212,7 +233,6 @@ double g_right(double t, double x_i0, double x_im1, double x_i, double v, double
 {
   double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_im1 - x_i + d);
   double friction = param_c + param_a * log(1 + v / special_v) + param_b * log(theta);
-
   return determine_friction_direction(other_than_friction, friction, v);
 }
 
