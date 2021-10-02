@@ -97,67 +97,136 @@ int main()
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
   //////////////////////////////////
-  // for (Time = t_start; Time < t_max; Time += dt)
-  // {
-  //   cal_count++; // ループの回数を記録
-
-  ////////////////////////////////////////////////////////////////////
-  ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
-  ////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////
-  ///// k1, l1, m1 を代入 //////
-  /////////////////////////////
-  Time = 100;
-
-  // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
-  for (s = 0; s < N; s++) // k1を代入
+  for (Time = t_start; Time < t_max; Time += dt)
   {
-    rk_k[s][0] = dt * f(v[s]);
-  }
-  for (s = 0; s < N; s++) // k1を代入
-  {
-    if (s == 0) // 左のブロック
+    cal_count++; // ループの回数を記録
+
+    ////////////////////////////////////////////////////////////////////
+    ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
+    ////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////
+    ///// k1, l1, m1 を代入 //////
+    /////////////////////////////
+    Time = 100;
+
+    // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
+    for (s = 0; s < N; s++) // k1を代入
     {
-      // printf("time:%f\tx_0:%f\tx_i:%f\tx_ip1:%f\tv:%f\ttheta:%f\tparam_a:%f\tl:%f\n", Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
-      rk_l[s][0] = dt * g_left(Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      rk_k[s][0] = dt * f(v[s]);
     }
-    else if (s == N - 1) // 右のブロック
+    for (s = 0; s < N; s++) // l1を代入
     {
-      // printf("time:%f\tx_0:%f\tx_im1:%f\tx_i:%f\tv:%f\ttheta:%f\tparam_a:%f\tl:%f\n", Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
-      rk_l[s][0] = dt * g_right(Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
+      if (s == 0) // 左のブロック
+      {
+        rk_l[s][0] = dt * g_left(Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      }
+      else if (s == N - 1) // 右のブロック
+      {
+        rk_l[s][0] = dt * g_right(Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
+      }
+      else // 左右以外のブロック
+      {
+        rk_l[s][0] = dt * g_inside(Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      }
     }
-    else // 左右以外のブロック
+    for (s = 0; s < N; s++) // m1を代入
     {
-      // printf("time:%f\tx_0:%f\tx_im1:%f\tx_i:%f\tx_ip1:%f\tv:%f\ttheta:%f\tparam_a:%f\tl:%f\n", Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
-      rk_l[s][0] = dt * g_inside(Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      rk_m[s][0] = dt * h(v[s], theta[s]);
     }
+
+    ///// k1, l1, m1 代入終了 //////
+
+    /////////////////////////////
+    ///// k2, l2, m2 を代入 //////
+    /////////////////////////////
+
+    for (s = 0; s < N; s++) // k2を代入
+    {
+      rk_k[s][1] = dt * f(v[s] + 0.5 * rk_l[s][0]);
+    }
+    for (s = 0; s < N; s++) // l2を代入
+    {
+      if (s == 0) // 左のブロック
+      {
+        rk_l[s][1] = dt * g_left(Time + 0.5 * dt, x_initial[s], x[s] + 0.5 * rk_k[s][0], x[s + 1] + 0.5 * rk_k[s + 1][0], v[s] + 0.5 * rk_l[s][0], theta[s] + 0.5 * rk_m[s][0], param_a[s], l[s]);
+      }
+      else if (s == N - 1) // 右のブロック
+      {
+        rk_l[s][1] = dt * g_right(Time + 0.5 * dt, x_initial[s], x[s - 1] + 0.5 * rk_k[s - 1][0], x[s] + 0.5 * rk_k[s][0], v[s] + 0.5 * rk_l[s][0], theta[s] + 0.5 * rk_m[s][0], param_a[s], l[s]);
+      }
+      else // 左右以外のブロック
+      {
+        rk_l[s][1] = dt * g_inside(Time + 0.5 * dt, x_initial[s], x[s - 1] + 0.5 * rk_k[s - 1][0], x[s] + 0.5 * rk_k[s][0], x[s + 1] + 0.5 * rk_k[s + 1][0], v[s] + 0.5 * rk_l[s][0], theta[s] + 0.5 * rk_m[s][0], param_a[s], l[s]);
+      }
+    }
+    for (s = 0; s < N; s++) // m2を代入
+    {
+      rk_m[s][1] = dt * h(v[s] + 0.5 * rk_l[s][0], theta[s] + 0.5 * rk_m[s][0]);
+    }
+
+    ///// k2, l2, m2 代入終了 //////
+
+    /////////////////////////////
+    ///// k3, l3, m3 を代入 //////
+    /////////////////////////////
+
+    for (s = 0; s < N; s++) // k3を代入
+    {
+      rk_k[s][2] = dt * f(v[s] + 0.5 * rk_l[s][1]);
+    }
+    for (s = 0; s < N; s++) // l3を代入
+    {
+      if (s == 0) // 左のブロック
+      {
+        rk_l[s][2] = dt * g_left(Time + 0.5 * dt, x_initial[s], x[s] + 0.5 * rk_k[s][1], x[s + 1] + 0.5 * rk_k[s + 1][1], v[s] + 0.5 * rk_l[s][1], theta[s] + 0.5 * rk_m[s][1], param_a[s], l[s]);
+      }
+      else if (s == N - 1) // 右のブロック
+      {
+        rk_l[s][2] = dt * g_right(Time + 0.5 * dt, x_initial[s], x[s - 1] + 0.5 * rk_k[s - 1][1], x[s] + 0.5 * rk_k[s][1], v[s] + 0.5 * rk_l[s][1], theta[s] + 0.5 * rk_m[s][1], param_a[s], l[s]);
+      }
+      else // 左右以外のブロック
+      {
+        rk_l[s][2] = dt * g_inside(Time + 0.5 * dt, x_initial[s], x[s - 1] + 0.5 * rk_k[s - 1][1], x[s] + 0.5 * rk_k[s][1], x[s + 1] + 0.5 * rk_k[s + 1][1], v[s] + 0.5 * rk_l[s][1], theta[s] + 0.5 * rk_m[s][1], param_a[s], l[s]);
+      }
+    }
+    for (s = 0; s < N; s++) // m3を代入
+    {
+      rk_m[s][2] = dt * h(v[s] + 0.5 * rk_l[s][1], theta[s] + 0.5 * rk_m[s][1]);
+    }
+
+    ///// k3, l3, m3 代入終了 //////
+
+    /////////////////////////////
+    ///// k4, l4, m4 を代入 //////
+    /////////////////////////////
+
+    for (s = 0; s < N; s++) // k4を代入
+    {
+      rk_k[s][3] = dt * f(v[s] + rk_l[s][2]);
+    }
+    for (s = 0; s < N; s++) // l4を代入
+    {
+      if (s == 0) // 左のブロック
+      {
+        rk_l[s][3] = dt * g_left(Time + dt, x_initial[s], x[s] + rk_k[s][2], x[s + 1] + rk_k[s + 1][2], v[s] + rk_l[s][2], theta[s] + rk_m[s][2], param_a[s], l[s]);
+      }
+      else if (s == N - 1) // 右のブロック
+      {
+        rk_l[s][3] = dt * g_right(Time + dt, x_initial[s], x[s - 1] + rk_k[s - 1][2], x[s] + rk_k[s][2], v[s] + rk_l[s][2], theta[s] + rk_m[s][2], param_a[s], l[s]);
+      }
+      else // 左右以外のブロック
+      {
+        rk_l[s][3] = dt * g_inside(Time + dt, x_initial[s], x[s - 1] + rk_k[s - 1][2], x[s] + rk_k[s][2], x[s + 1] + rk_k[s + 1][2], v[s] + rk_l[s][2], theta[s] + rk_m[s][2], param_a[s], l[s]);
+      }
+    }
+    for (s = 0; s < N; s++) // m4を代入
+    {
+      rk_m[s][3] = dt * h(v[s] + 0.5 * rk_l[s][1], theta[s] + 0.5 * rk_m[s][1]);
+    }
+
+    ///// k4, l4, m4 代入終了 //////
   }
-  for (s = 0; s < N; s++) // m1を代入
-  {
-    rk_m[s][0] = dt * h(v[s], theta[s]);
-  }
-
-  ///// k1, l1, m1 代入終了 //////
-
-  /////////////////////////////
-  ///// k2, l2, m2 を代入 //////
-  /////////////////////////////
-
-  ///// k2, l2, m2 代入終了 //////
-
-  /////////////////////////////
-  ///// k3, l3, m3 を代入 //////
-  /////////////////////////////
-
-  ///// k3, l3, m3 代入終了 //////
-
-  /////////////////////////////
-  ///// k4, l4, m4 を代入 //////
-  /////////////////////////////
-
-  ///// k4, l4, m4 代入終了 //////
-  // }
 
   // データを記述するファイルの作成
 
