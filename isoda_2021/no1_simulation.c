@@ -107,7 +107,29 @@ int main()
     ////////////////////////////////////////////////////////////////////
 
     // k -> dx, l -> dv, m -> dθ にそれぞれ対応している
+    for (s = 0; s < N; s++)
+    {
+      rk_k[s][0] = dt * f(v[s]); // k1を代入
+
+      if (s == 0) // l1を代入(左のブロック)
+      {
+        printf("左のブロック");
+        rk_l[s][0] = dt * g_left(Time, x_initial[s], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      }
+      else if (s == N - 1) // l1を代入(右のブロック)
+      {
+        printf("右のブロック");
+        rk_l[s][0] = dt * g_right(Time, x_initial[s], x[s - 1], x[s], v[s], theta[s], param_a[s], l[s]);
+      }
+      else
+      {
+        printf("i"); // l1を代入(左右以外のブロック)
+        rk_l[s][0] = dt * g_inside(Time, x_initial[s], x[s - 1], x[s], x[s + 1], v[s], theta[s], param_a[s], l[s]);
+      }
+
+      rk_m[s][0] = dt * h(v[s], theta[s]); // m1を代入
     }
+  }
 
   // データを記述するファイルの作成
 
@@ -121,7 +143,7 @@ int main()
   // OUTPUTFILE3 = fopen("region410f.txt", "w");
   // OUTPUTFILE4 = fopen("region410t.txt", "w");
 
-  double g_left_num = g_left(100.0, 2.0, 1.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
+  double g_left_num = g_left(100.0, 1.0, 2.0, 3.0, 1.0, 1000.0, 0.1, 0.2);
   printf("g_left：%.10f\n", g_left_num);
 
   // ファイルへの記述を終了
@@ -168,8 +190,10 @@ double g_left(double t, double x_i0, double x_i, double x_ip1, double v, double 
 {
   // 運動方程式の摩擦以外の部分を定義 （vによって摩擦の値が変更される場合があるため）
   double other_than_friction = plate_v * t - (x_i - x_i0) + l * (x_ip1 - x_i - d);
+  printf("摩擦以外:%f", other_than_friction);
   // 運動方程式の摩擦力の部分を定義
   double friction = param_c + param_a * log(1 + v / special_v) + param_b * log(theta);
+  printf("摩擦:%f\n", friction);
 
   return determine_friction_direction(other_than_friction, friction, v);
 }
