@@ -4,7 +4,7 @@
 #include <time.h>
 
 // グローバル変数を定義
-int N = 200; // ブロック数
+int N = 10; // ブロック数
 double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, Time, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
@@ -48,7 +48,7 @@ int main()
   Time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
   t_max = 105.0;           // 計測終了時間
-  dt = pow(10.0, -1);      // 時間の刻み幅
+  dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
@@ -73,9 +73,13 @@ int main()
     //   return 0;
     // }
 
-    //とりあえず全てゆっくり地震
-    param_a[s] = param_a_slow;
-    l[s] = l_slow;
+    //全てゆっくり地震のパターン
+    // param_a[s] = param_a_slow;
+    // l[s] = l_slow;
+
+    //全て通常の地震のパターン
+    param_a[s] = param_a_general;
+    l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -109,9 +113,9 @@ int main()
   // FILE *OUTPUTFILE3;
   // FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/x.txt", "w");
-  OUTPUTFILE2 = fopen("output/v.txt", "w");
-  OUTPUTFILE3 = fopen("output/theta.txt", "w");
+  OUTPUTFILE1 = fopen("output/v_1.txt", "w");
+  OUTPUTFILE2 = fopen("output/v_100.txt", "w");
+  OUTPUTFILE3 = fopen("output/v_200.txt", "w");
 
   // OUTPUTFILE1 = fopen("region410x.txt", "w");
   // OUTPUTFILE2 = fopen("region410y.txt", "w");
@@ -124,7 +128,7 @@ int main()
   for (Time = t_start; Time < t_max; Time += dt)
   {
     cal_count++; // ループの回数を記録
-    printf("%f\t", Time);
+    // printf("%f\t", Time);
 
     ////////////////////////////////////////////////////////////////////
     ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
@@ -274,9 +278,19 @@ int main()
     ///////////////////////////
 
     // とりあえず1つ目のブロックのみ出力
-    fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, x[0]);
-    fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
-    fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, theta[0]);
+
+    if (cal_count % 1000 == 0)
+    {
+      fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
+      fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[4]);
+      fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, v[9]);
+
+      for (s = 0; s < N; s++)
+      {
+        // fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
+      }
+    }
+
     if (t_max < Time)
     {
       break;
