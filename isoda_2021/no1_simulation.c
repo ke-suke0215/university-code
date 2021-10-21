@@ -4,7 +4,7 @@
 #include <time.h>
 
 // グローバル変数を定義
-int N = 10; // ブロック数
+int N = 30; // ブロック数
 double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, Time, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
@@ -40,7 +40,7 @@ int main()
 
   plate_v = pow(10.0, -2.0);   // プレートの速度
   special_v = pow(10.0, -1.0); // 特徴的な速度
-  d = pow(10.0, -6.0);         //バネの自然長
+  d = pow(10.0, -5.0);         //バネの自然長
 
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
@@ -57,29 +57,40 @@ int main()
   {
     /////// 通常の地震とゆっくり地震が起こるパラメータを代入 ///////
 
-    // if (s < N / 2) // 通常の地震
-    // {
-    //   param_a[s] = param_a_general;
-    //   l[s] = l_general;
-    // }
-    // else if (s >= N / 2) // ゆっくり地震
+    // if (s > 10 && s < 19)
     // {
     //   param_a[s] = param_a_slow;
     //   l[s] = l_slow;
     // }
     // else
     // {
-    //   printf("不適切な値で計算が行われています。");
-    //   return 0;
+    //   param_a[s] = param_a_general;
+    //   l[s] = l_general;
     // }
 
-    //全てゆっくり地震のパターン
+    if (s < N / 2) // 通常の地震
+    {
+      param_a[s] = param_a_general;
+      l[s] = l_general;
+    }
+    else if (s >= N / 2) // ゆっくり地震
+    {
+      param_a[s] = param_a_slow;
+      l[s] = l_slow;
+    }
+    else
+    {
+      printf("不適切な値で計算が行われています。");
+      return 0;
+    }
+
+    // 全てゆっくり地震のパターン
     // param_a[s] = param_a_slow;
     // l[s] = l_slow;
 
     //全て通常の地震のパターン
-    param_a[s] = param_a_general;
-    l[s] = l_general;
+    // param_a[s] = param_a_general;
+    // l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -113,9 +124,9 @@ int main()
   // FILE *OUTPUTFILE3;
   // FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/v_1.txt", "w");
-  OUTPUTFILE2 = fopen("output/v_100.txt", "w");
-  OUTPUTFILE3 = fopen("output/v_200.txt", "w");
+  OUTPUTFILE1 = fopen("output/x.txt", "w");
+  OUTPUTFILE2 = fopen("output/v.txt", "w");
+  OUTPUTFILE3 = fopen("output/theta.txt", "w");
 
   // OUTPUTFILE1 = fopen("region410x.txt", "w");
   // OUTPUTFILE2 = fopen("region410y.txt", "w");
@@ -281,13 +292,15 @@ int main()
 
     if (cal_count % 1000 == 0)
     {
-      fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
-      fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[4]);
-      fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, v[9]);
+      // fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
+      // fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[7]);
+      // fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, v[19]);
 
       for (s = 0; s < N; s++)
       {
-        // fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
+        fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
+        fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
+        fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, theta[s]);
       }
     }
 
