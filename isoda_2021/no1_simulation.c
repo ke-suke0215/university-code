@@ -4,7 +4,7 @@
 #include <time.h>
 
 // グローバル変数を定義
-int N = 200; // ブロック数
+int N = 30; // ブロック数
 double param_a_general, param_a_slow, param_b, param_c, plate_v, special_v, d, l_general, l_slow, Time, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
@@ -40,7 +40,7 @@ int main()
 
   plate_v = pow(10.0, -2.0);   // プレートの速度
   special_v = pow(10.0, -1.0); // 特徴的な速度
-  d = pow(10.0, -6.0);         //バネの自然長
+  d = pow(10.0, -5.0);         //バネの自然長
 
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
@@ -48,7 +48,7 @@ int main()
   Time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
   t_max = 105.0;           // 計測終了時間
-  dt = pow(10.0, -1);      // 時間の刻み幅
+  dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
 
@@ -57,25 +57,40 @@ int main()
   {
     /////// 通常の地震とゆっくり地震が起こるパラメータを代入 ///////
 
-    // if (s < N / 2) // 通常の地震
-    // {
-    //   param_a[s] = param_a_general;
-    //   l[s] = l_general;
-    // }
-    // else if (s >= N / 2) // ゆっくり地震
+    // if (s > 10 && s < 19)
     // {
     //   param_a[s] = param_a_slow;
     //   l[s] = l_slow;
     // }
     // else
     // {
-    //   printf("不適切な値で計算が行われています。");
-    //   return 0;
+    //   param_a[s] = param_a_general;
+    //   l[s] = l_general;
     // }
 
-    //とりあえず全てゆっくり地震
-    param_a[s] = param_a_slow;
-    l[s] = l_slow;
+    if (s < N / 2) // 通常の地震
+    {
+      param_a[s] = param_a_general;
+      l[s] = l_general;
+    }
+    else if (s >= N / 2) // ゆっくり地震
+    {
+      param_a[s] = param_a_slow;
+      l[s] = l_slow;
+    }
+    else
+    {
+      printf("不適切な値で計算が行われています。");
+      return 0;
+    }
+
+    // 全てゆっくり地震のパターン
+    // param_a[s] = param_a_slow;
+    // l[s] = l_slow;
+
+    //全て通常の地震のパターン
+    // param_a[s] = param_a_general;
+    // l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -124,7 +139,7 @@ int main()
   for (Time = t_start; Time < t_max; Time += dt)
   {
     cal_count++; // ループの回数を記録
-    printf("%f\t", Time);
+    // printf("%f\t", Time);
 
     ////////////////////////////////////////////////////////////////////
     ////// 各ブロックのルンゲクッタ法の計算で使用する k,l,m の1~4に値を代入 /////
@@ -274,9 +289,21 @@ int main()
     ///////////////////////////
 
     // とりあえず1つ目のブロックのみ出力
-    fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, x[0]);
-    fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
-    fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, theta[0]);
+
+    if (cal_count % 1000 == 0)
+    {
+      // fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
+      // fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[7]);
+      // fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, v[19]);
+
+      for (s = 0; s < N; s++)
+      {
+        fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
+        fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
+        fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, theta[s]);
+      }
+    }
+
     if (t_max < Time)
     {
       break;
