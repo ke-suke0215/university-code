@@ -40,7 +40,8 @@ int main()
 
   plate_v = pow(10.0, -2.0);   // プレートの速度
   special_v = pow(10.0, -1.0); // 特徴的な速度
-  d = pow(10.0, -5.0);         //バネの自然長
+  // d = pow(10.0, -5.0);         //バネの自然長
+  d = 0.5;
 
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
@@ -68,12 +69,13 @@ int main()
     //   l[s] = l_general;
     // }
 
-    if (s < N / 2) // 通常の地震
+    // 通常の地震とゆっくり地震半分ずつ
+    if (s < N / 2)
     {
       param_a[s] = param_a_general;
       l[s] = l_general;
     }
-    else if (s >= N / 2) // ゆっくり地震
+    else if (s >= N / 2)
     {
       param_a[s] = param_a_slow;
       l[s] = l_slow;
