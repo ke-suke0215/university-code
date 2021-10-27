@@ -70,25 +70,25 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    if (s < N / 2)
-    {
-      param_a[s] = param_a_general;
-      l[s] = l_general;
-    }
-    else if (s >= N / 2)
-    {
-      param_a[s] = param_a_slow;
-      l[s] = l_slow;
-    }
-    else
-    {
-      printf("不適切な値で計算が行われています。");
-      return 0;
-    }
+    // if (s < N / 2)
+    // {
+    //   param_a[s] = param_a_general;
+    //   l[s] = l_general;
+    // }
+    // else if (s >= N / 2)
+    // {
+    //   param_a[s] = param_a_slow;
+    //   l[s] = l_slow;
+    // }
+    // else
+    // {
+    //   printf("不適切な値で計算が行われています。");
+    //   return 0;
+    // }
 
     // 全てゆっくり地震のパターン
-    // param_a[s] = param_a_slow;
-    // l[s] = l_slow;
+    param_a[s] = param_a_slow;
+    l[s] = l_slow;
 
     //全て通常の地震のパターン
     // param_a[s] = param_a_general;
@@ -126,9 +126,9 @@ int main()
   // FILE *OUTPUTFILE3;
   // FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/x.txt", "w");
-  OUTPUTFILE2 = fopen("output/v.txt", "w");
-  OUTPUTFILE3 = fopen("output/theta.txt", "w");
+  OUTPUTFILE1 = fopen("output/change-param-a/all-slow/x^(1).txt", "w");
+  OUTPUTFILE2 = fopen("output/change-param-a/all-slow/v^(1).txt", "w");
+  OUTPUTFILE3 = fopen("output/change-param-a/all-slow/theta^(1).txt", "w");
 
   // OUTPUTFILE1 = fopen("region410x.txt", "w");
   // OUTPUTFILE2 = fopen("region410y.txt", "w");
