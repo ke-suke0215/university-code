@@ -29,6 +29,9 @@ int main()
   // 通常の地震とゆっくり地震を判断するためのパラメータaとばね定数lを格納する配列
   double param_a[N], l[N];
 
+  // 摩擦出力に使用する配列
+  double friction_array[N];
+
   ///////////////////////////
   /// 定義した変数に値を代入 ///
   ///////////////////////////
@@ -120,20 +123,12 @@ int main()
   FILE *OUTPUTFILE1;
   FILE *OUTPUTFILE2;
   FILE *OUTPUTFILE3;
-
-  // FILE *OUTPUTFILE1;
-  // FILE *OUTPUTFILE2;
-  // FILE *OUTPUTFILE3;
-  // FILE *OUTPUTFILE4;
+  FILE *OUTPUTFILE4;
 
   OUTPUTFILE1 = fopen("output/x.txt", "w");
   OUTPUTFILE2 = fopen("output/v.txt", "w");
   OUTPUTFILE3 = fopen("output/theta.txt", "w");
-
-  // OUTPUTFILE1 = fopen("region410x.txt", "w");
-  // OUTPUTFILE2 = fopen("region410y.txt", "w");
-  // OUTPUTFILE3 = fopen("region410f.txt", "w");
-  // OUTPUTFILE4 = fopen("region410t.txt", "w");
+  OUTPUTFILE4 = fopen("output/friction-v-graph/half-bkNo10.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
@@ -274,9 +269,18 @@ int main()
 
     for (s = 0; s < N; s++)
     {
+      friction_array[s] = param_c + param_a[s] * log(1 + v[s] / special_v) + param_b * log(theta[s]);
+
       x[s] = x[s] + (1.0 / 6.0) * (rk_k[s][0] + 2.0 * rk_k[s][1] + 2.0 * rk_k[s][2] + rk_k[s][3]);
       v[s] = v[s] + (1.0 / 6.0) * (rk_l[s][0] + 2.0 * rk_l[s][1] + 2.0 * rk_l[s][2] + rk_l[s][3]);
       theta[s] = theta[s] + (1.0 / 6.0) * (rk_m[s][0] + 2.0 * rk_m[s][1] + 2.0 * rk_m[s][2] + rk_m[s][3]);
+
+      if (cal_count % 1000 == 0)
+      {
+        fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
+        fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
+        fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, theta[s]);
+      }
 
       // 逆方向へ滑るのを防ぐため
       if (v[s] < zero)
@@ -284,27 +288,12 @@ int main()
         v[s] = 0.0;
       }
     }
-    ///// 計算終了 /////
-
-    ///////////////////////////
-    ///// ファイルに値を出力 /////
-    ///////////////////////////
-
-    // とりあえず1つ目のブロックのみ出力
-
     if (cal_count % 1000 == 0)
     {
-      // fprintf(OUTPUTFILE1, "%25.22lf\t%25.22lf\n", Time + dt, v[0]);
-      // fprintf(OUTPUTFILE2, "%25.22lf\t%25.22lf\n", Time + dt, v[7]);
-      // fprintf(OUTPUTFILE3, "%25.22lf\t%25.22lf\n", Time + dt, v[19]);
-
-      for (s = 0; s < N; s++)
-      {
-        fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
-        fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
-        fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, theta[s]);
-      }
+      fprintf(OUTPUTFILE4, "%25.22lf\t%25.22lf\n", v[10], friction_array[10]);
     }
+
+    ///// 計算終了 /////
 
     if (t_max < Time)
     {
@@ -316,11 +305,7 @@ int main()
   fclose(OUTPUTFILE1);
   fclose(OUTPUTFILE2);
   fclose(OUTPUTFILE3);
-
-  // fclose(OUTPUTFILE1);
-  // fclose(OUTPUTFILE2);
-  // fclose(OUTPUTFILE3);
-  // fclose(OUTPUTFILE4);
+  fclose(OUTPUTFILE4);
 }
 
 //////////////////////////////////////////////
