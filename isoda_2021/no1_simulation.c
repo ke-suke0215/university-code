@@ -70,20 +70,32 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    if (s < N / 2)
+    // if (s < N / 2)
+    // {
+    //   param_a[s] = param_a_general;
+    //   l[s] = l_general;
+    // }
+    // else if (s >= N / 2)
+    // {
+    //   param_a[s] = param_a_slow;
+    //   l[s] = l_slow;
+    // }
+    // else
+    // {
+    //   printf("不適切な値で計算が行われています。");
+    //   return 0;
+    // }
+
+    // 通常とゆっくり交互
+    if (s % 2 == 0)
     {
       param_a[s] = param_a_general;
       l[s] = l_general;
     }
-    else if (s >= N / 2)
+    else
     {
       param_a[s] = param_a_slow;
       l[s] = l_slow;
-    }
-    else
-    {
-      printf("不適切な値で計算が行われています。");
-      return 0;
     }
 
     // 全てゆっくり地震のパターン
