@@ -90,24 +90,24 @@ int main()
     // }
 
     // 通常とゆっくり交互
-    if (s % 2 == 0)
-    {
-      param_a[s] = param_a_general;
-      l[s] = l_general;
-    }
-    else
-    {
-      param_a[s] = param_a_slow;
-      l[s] = l_slow;
-    }
+    // if (s % 2 == 0)
+    // {
+    //   param_a[s] = param_a_general;
+    //   l[s] = l_general;
+    // }
+    // else
+    // {
+    //   param_a[s] = param_a_slow;
+    //   l[s] = l_slow;
+    // }
 
     // 全てゆっくり地震のパターン
     // param_a[s] = param_a_slow;
     // l[s] = l_slow;
 
     //全て通常の地震のパターン
-    // param_a[s] = param_a_general;
-    // l[s] = l_general;
+    param_a[s] = param_a_general;
+    l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -140,7 +140,7 @@ int main()
   OUTPUTFILE1 = fopen("output/x.txt", "w");
   OUTPUTFILE2 = fopen("output/v.txt", "w");
   OUTPUTFILE3 = fopen("output/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/friction-v-graph/half-bkNo10.txt", "w");
+  OUTPUTFILE4 = fopen("output/friction-v-graph/general-param_a0.1-bkNo10.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
@@ -300,9 +300,9 @@ int main()
         v[s] = 0.0;
       }
     }
-    if (cal_count % 1000 == 0)
+    if (cal_count % 100 == 0)
     {
-      fprintf(OUTPUTFILE4, "%25.22lf\t%25.22lf\n", v[10], friction_array[10]);
+      fprintf(OUTPUTFILE4, "%25.22lf\t%25.22lf\t%25.22lf\n", v[10], Time + dt, friction_array[10]);
     }
 
     ///// 計算終了 /////
