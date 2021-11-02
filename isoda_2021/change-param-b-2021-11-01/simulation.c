@@ -36,10 +36,10 @@ int main()
   /// 定義した変数に値を代入 ///
   ///////////////////////////
 
-  param_a_general = pow(10.0, -5.0); // 通常の地震の摩擦パラメータa
-  param_a_slow = pow(10.0, -1.0);    // ゆっくり地震の摩擦パラメータa
-  param_b_general = pow(10.0, -3.0); // 通常の地震の摩擦パラメータb
-  param_b_slow = pow(10.0, -3.0);    // ゆっくり地震の摩擦パラメータb
+  param_a_general = pow(10.0, -3.0); // 通常の地震の摩擦パラメータa
+  param_a_slow = pow(10.0, -3.0);    // ゆっくり地震の摩擦パラメータa
+  param_b_general = pow(10.0, -1.0); // 通常の地震の摩擦パラメータb
+  param_b_slow = pow(10.0, -5.0);    // ゆっくり地震の摩擦パラメータb
   param_c = pow(10.0, -3.0);         // 摩擦パラメータc
 
   plate_v = pow(10.0, -2.0);   // プレートの速度
@@ -102,13 +102,13 @@ int main()
     // }
 
     // 全てゆっくり地震のパターン
-    // param_a[s] = param_a_slow;
-    // l[s] = l_slow;
+    param_a[s] = param_a_slow;
+    l[s] = l_slow;
 
     //全て通常の地震のパターン
-    param_a[s] = param_a_general;
-    param_b[s] = param_a_general;
-    l[s] = l_general;
+    // param_a[s] = param_a_general;
+    // param_b[s] = param_a_general;
+    // l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -138,10 +138,10 @@ int main()
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/x.txt", "w");
-  OUTPUTFILE2 = fopen("output/v.txt", "w");
-  OUTPUTFILE3 = fopen("output/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/a=0.001_b-change/all-slow/x.txt", "w");
+  OUTPUTFILE2 = fopen("output/a=0.001_b-change/all-slow/v.txt", "w");
+  OUTPUTFILE3 = fopen("output/a=0.001_b-change/all-slow/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/a=0.001_b-change/all-slow/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
