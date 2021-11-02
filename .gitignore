@@ -1,4 +1,4 @@
 .DS_Store
 .vscode
-isoda_2021/initial/output
-isoda_2021/initial/a.out
+*.txt
+*.out
