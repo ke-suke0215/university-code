@@ -109,7 +109,6 @@ int main()
     // x_initial と x は1つ目のブロックは0、それ以降は0~1の乱数を用いて値を代入
     random_num = (double)rand() / (double)RAND_MAX;
     x[s] = random_num;
-    printf("%f\n", x[s]);
   }
 
   ////////// 値の代入終了 ////////////
@@ -121,10 +120,10 @@ int main()
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/v.txt", "w");
-  OUTPUTFILE2 = fopen("output/x.txt", "w");
-  OUTPUTFILE3 = fopen("output/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/time_100-105/v.txt", "w");
+  OUTPUTFILE2 = fopen("output/time_100-105/x.txt", "w");
+  OUTPUTFILE3 = fopen("output/time_100-105/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/time_100-105/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
