@@ -139,7 +139,7 @@ int main()
   OUTPUTFILE1 = fopen("output/x.txt", "w");
   OUTPUTFILE2 = fopen("output/v.txt", "w");
   OUTPUTFILE3 = fopen("output/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/friction-v-graph/general-param_a0.1-bkNo10.txt", "w");
+  OUTPUTFILE4 = fopen("output/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////

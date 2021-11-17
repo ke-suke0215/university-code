@@ -36,10 +36,10 @@ int main()
   /// 定義した変数に値を代入 ///
   ///////////////////////////
 
-  param_a_general = pow(10.0, -3.0); // 通常の地震の摩擦パラメータa
-  param_a_slow = pow(10.0, -3.0);    // ゆっくり地震の摩擦パラメータa
-  param_b_general = pow(10.0, -1.0); // 通常の地震の摩擦パラメータb
-  param_b_slow = pow(10.0, -5.0);    // ゆっくり地震の摩擦パラメータb
+  param_a_general = pow(10.0, -5.0); // 通常の地震の摩擦パラメータa
+  param_a_slow = pow(10.0, -1.0);    // ゆっくり地震の摩擦パラメータa
+  param_b_general = pow(10.0, -3.0); // 通常の地震の摩擦パラメータb
+  param_b_slow = pow(10.0, -3.0);    // ゆっくり地震の摩擦パラメータb
   param_c = pow(10.0, -3.0);         // 摩擦パラメータc
 
   plate_v = pow(10.0, -2.0);   // プレートの速度
@@ -51,7 +51,7 @@ int main()
 
   Time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
-  t_max = 105.0;           // 計測終了時間
+  t_max = 1000.0;          // 計測終了時間
   dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
@@ -129,10 +129,10 @@ int main()
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/a=0.001_b-change/half/x.txt", "w");
-  OUTPUTFILE2 = fopen("output/a=0.001_b-change/half/v.txt", "w");
-  OUTPUTFILE3 = fopen("output/a=0.001_b-change/half/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/a=0.001_b-change/half/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/a=0.001_b-change/long-time/half/x.txt", "w");
+  OUTPUTFILE2 = fopen("output/a=0.001_b-change/long-time/half/v.txt", "w");
+  OUTPUTFILE3 = fopen("output/a=0.001_b-change/long-time/half/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/a=0.001_b-change/long-time/half/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
@@ -279,7 +279,7 @@ int main()
       v[s] = v[s] + (1.0 / 6.0) * (rk_l[s][0] + 2.0 * rk_l[s][1] + 2.0 * rk_l[s][2] + rk_l[s][3]);
       theta[s] = theta[s] + (1.0 / 6.0) * (rk_m[s][0] + 2.0 * rk_m[s][1] + 2.0 * rk_m[s][2] + rk_m[s][3]);
 
-      if (cal_count % 1000 == 0)
+      if (cal_count % 10000 == 0)
       {
         fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
         fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
