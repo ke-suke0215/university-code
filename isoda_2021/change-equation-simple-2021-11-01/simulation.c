@@ -51,7 +51,7 @@ int main()
 
   Time = 0.0;              // 時間計測用変数
   t_start = 100.0;         // 計測開始時間
-  t_max = 105.0;           // 計測終了時間
+  t_max = 2000.0;          // 計測終了時間
   dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
@@ -73,23 +73,23 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    if (s < N / 2)
-    {
-      param_a[s] = param_a_general;
-      param_b[s] = param_b_general;
-      l[s] = l_general;
-    }
-    else if (s >= N / 2)
-    {
-      param_a[s] = param_a_slow;
-      param_b[s] = param_b_slow;
-      l[s] = l_slow;
-    }
-    else
-    {
-      printf("不適切な値で計算が行われています。");
-      return 0;
-    }
+    // if (s < N / 2)
+    // {
+    //   param_a[s] = param_a_general;
+    //   param_b[s] = param_b_general;
+    //   l[s] = l_general;
+    // }
+    // else if (s >= N / 2)
+    // {
+    //   param_a[s] = param_a_slow;
+    //   param_b[s] = param_b_slow;
+    //   l[s] = l_slow;
+    // }
+    // else
+    // {
+    //   printf("不適切な値で計算が行われています。");
+    //   return 0;
+    // }
 
     // 全てゆっくり地震のパターン
     // param_a[s] = param_a_slow;
@@ -97,9 +97,9 @@ int main()
     // l[s] = l_slow;
 
     //全て通常の地震のパターン
-    // param_a[s] = param_a_general;
-    // param_b[s] = param_a_general;
-    // l[s] = l_general;
+    param_a[s] = param_a_general;
+    param_b[s] = param_a_general;
+    l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -120,10 +120,10 @@ int main()
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/time_100-105/v.txt", "w");
-  OUTPUTFILE2 = fopen("output/time_100-105/x.txt", "w");
-  OUTPUTFILE3 = fopen("output/time_100-105/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/time_100-105/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/time_100-2000/general/v.txt", "w");
+  OUTPUTFILE2 = fopen("output/time_100-2000/general/x.txt", "w");
+  OUTPUTFILE3 = fopen("output/time_100-2000/general/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/time_100-2000/general/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
@@ -270,7 +270,7 @@ int main()
       v[s] = v[s] + (1.0 / 6.0) * (rk_l[s][0] + 2.0 * rk_l[s][1] + 2.0 * rk_l[s][2] + rk_l[s][3]);
       theta[s] = theta[s] + (1.0 / 6.0) * (rk_m[s][0] + 2.0 * rk_m[s][1] + 2.0 * rk_m[s][2] + rk_m[s][3]);
 
-      if (cal_count % 1000 == 0)
+      if (cal_count % 10000 == 0)
       {
         fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
         fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
