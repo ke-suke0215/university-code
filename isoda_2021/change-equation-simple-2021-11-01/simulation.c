@@ -36,22 +36,22 @@ int main()
   /// 定義した変数に値を代入 ///
   ///////////////////////////
 
-  param_a_general = pow(10.0, -5.0); // 通常の地震の摩擦パラメータa
-  param_a_slow = pow(10.0, -1.0);    // ゆっくり地震の摩擦パラメータa
-  param_b_general = pow(10.0, -3.0); // 通常の地震の摩擦パラメータb
-  param_b_slow = pow(10.0, -3.0);    // ゆっくり地震の摩擦パラメータb
-  param_c = pow(10.0, -3.0);         // 摩擦パラメータc
+  param_a_general = 10.0;  // 通常の地震の摩擦パラメータa
+  param_a_slow = 10.0;     // ゆっくり地震の摩擦パラメータa
+  param_b_general = 100.0; // 通常の地震の摩擦パラメータb
+  param_b_slow = 1.0;      // ゆっくり地震の摩擦パラメータb
+  param_c = 1.0;           // 摩擦パラメータc
 
-  plate_v = pow(10.0, -2.0);   // プレートの速度
+  plate_v = 1.0;               // プレートの速度
   special_v = pow(10.0, -1.0); // 特徴的な速度
   d = 0.5;                     //バネの自然長
 
-  l_general = 2000.0; // 通常の地震での無次元化されたばね定数
-  l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
+  l_general = 1.0; // 通常の地震での無次元化されたばね定数
+  l_slow = 0.2;    // ゆっくり地震での無次元化されたばね定数
 
   Time = 0.0;              // 時間計測用変数
-  t_start = 100.0;         // 計測開始時間
-  t_max = 2000.0;          // 計測終了時間
+  t_start = 60.0;          // 計測開始時間
+  t_max = 200.0;           // 計測終了時間
   dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
@@ -103,8 +103,8 @@ int main()
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
-    v[s] = pow(10.0, -4.0);
-    theta[s] = pow(10.0, 3.0);
+    v[s] = 0.0;
+    theta[s] = 1000.0;
 
     // x_initial と x は1つ目のブロックは0、それ以降は0~1の乱数を用いて値を代入
     random_num = (double)rand() / (double)RAND_MAX;
@@ -120,10 +120,10 @@ int main()
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/time_100-2000/general/v.txt", "w");
-  OUTPUTFILE2 = fopen("output/time_100-2000/general/x.txt", "w");
-  OUTPUTFILE3 = fopen("output/time_100-2000/general/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/time_100-2000/general/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/many-time-earthquake/general/v.txt", "w");
+  OUTPUTFILE2 = fopen("output/many-time-earthquake/general/x.txt", "w");
+  OUTPUTFILE3 = fopen("output/many-time-earthquake/general/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/many-time-earthquake/general/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
