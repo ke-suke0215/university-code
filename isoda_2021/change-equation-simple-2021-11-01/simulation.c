@@ -4,7 +4,7 @@
 #include <time.h>
 
 // グローバル変数を定義
-int N = 30; // ブロック数
+int N = 100; // ブロック数
 double param_a_general, param_a_slow, param_b_general, param_b_slow, param_c, plate_v, special_v, d, l_general, l_slow, Time, t_start, t_max, dt, zero, random_num;
 
 // main外に記述する関数を定義
@@ -42,7 +42,7 @@ int main()
   param_b_slow = 1.0;      // ゆっくり地震の摩擦パラメータb
   param_c = 1.0;           // 摩擦パラメータc
 
-  plate_v = 1.0;               // プレートの速度
+  plate_v = 0.1;               // プレートの速度
   special_v = pow(10.0, -1.0); // 特徴的な速度
   d = 0.5;                     //バネの自然長
 
@@ -50,8 +50,8 @@ int main()
   l_slow = 0.2;    // ゆっくり地震での無次元化されたばね定数
 
   Time = 0.0;              // 時間計測用変数
-  t_start = 60.0;          // 計測開始時間
-  t_max = 200.0;           // 計測終了時間
+  t_start = 700.0;         // 計測開始時間
+  t_max = 2000.0;          // 計測終了時間
   dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
@@ -270,7 +270,7 @@ int main()
       v[s] = v[s] + (1.0 / 6.0) * (rk_l[s][0] + 2.0 * rk_l[s][1] + 2.0 * rk_l[s][2] + rk_l[s][3]);
       theta[s] = theta[s] + (1.0 / 6.0) * (rk_m[s][0] + 2.0 * rk_m[s][1] + 2.0 * rk_m[s][2] + rk_m[s][3]);
 
-      if (cal_count % 10000 == 0)
+      if (cal_count % 100000 == 0)
       {
         fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
         fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
