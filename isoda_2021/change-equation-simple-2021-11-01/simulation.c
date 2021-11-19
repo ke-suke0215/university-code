@@ -37,9 +37,9 @@ int main()
   ///////////////////////////
 
   param_a_general = 10.0;  // 通常の地震の摩擦パラメータa
-  param_a_slow = 10.0;     // ゆっくり地震の摩擦パラメータa
+  param_a_slow = 25.0;     // ゆっくり地震の摩擦パラメータa
   param_b_general = 100.0; // 通常の地震の摩擦パラメータb
-  param_b_slow = 1.0;      // ゆっくり地震の摩擦パラメータb
+  param_b_slow = 10.0;     // ゆっくり地震の摩擦パラメータb
   param_c = 1.0;           // 摩擦パラメータc
 
   plate_v = 0.05;              // プレートの速度
@@ -47,7 +47,7 @@ int main()
   d = 0.5;                     //バネの自然長
 
   l_general = 1.0; // 通常の地震での無次元化されたばね定数
-  l_slow = 0.2;    // ゆっくり地震での無次元化されたばね定数
+  l_slow = 1.0;    // ゆっくり地震での無次元化されたばね定数
 
   Time = 0.0;              // 時間計測用変数
   t_start = 1000.0;        // 計測開始時間
@@ -73,23 +73,23 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    // if (s < N / 2)
-    // {
-    //   param_a[s] = param_a_general;
-    //   param_b[s] = param_b_general;
-    //   l[s] = l_general;
-    // }
-    // else if (s >= N / 2)
-    // {
-    //   param_a[s] = param_a_slow;
-    //   param_b[s] = param_b_slow;
-    //   l[s] = l_slow;
-    // }
-    // else
-    // {
-    //   printf("不適切な値で計算が行われています。");
-    //   return 0;
-    // }
+    if (s < N / 2)
+    {
+      param_a[s] = param_a_general;
+      param_b[s] = param_b_general;
+      l[s] = l_general;
+    }
+    else if (s >= N / 2)
+    {
+      param_a[s] = param_a_slow;
+      param_b[s] = param_b_slow;
+      l[s] = l_slow;
+    }
+    else
+    {
+      printf("不適切な値で計算が行われています。");
+      return 0;
+    }
 
     // 全てゆっくり地震のパターン
     // param_a[s] = param_a_slow;
@@ -97,9 +97,9 @@ int main()
     // l[s] = l_slow;
 
     //全て通常の地震のパターン
-    param_a[s] = param_a_general;
-    param_b[s] = param_a_general;
-    l[s] = l_general;
+    // param_a[s] = param_a_general;
+    // param_b[s] = param_a_general;
+    // l[s] = l_general;
 
     //////// x, v, θ に値を代入 ////////
 
@@ -108,7 +108,7 @@ int main()
 
     // 0~1の乱数を用いて値を代入
     random_num = (double)rand() / (double)RAND_MAX;
-    x[s] = random_num * 10 - 5;
+    x[s] = random_num;
   }
 
   ////////// 値の代入終了 ////////////
@@ -119,11 +119,13 @@ int main()
   FILE *OUTPUTFILE2;
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
+  FILE *OUTPUTFILE5;
 
-  OUTPUTFILE1 = fopen("output/many-time-earthquake/general/v.txt", "w");
-  OUTPUTFILE2 = fopen("output/many-time-earthquake/general/x.txt", "w");
-  OUTPUTFILE3 = fopen("output/many-time-earthquake/general/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/many-time-earthquake/general/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/many-time-earthquake/half/v.txt", "w");
+  OUTPUTFILE2 = fopen("output/many-time-earthquake/half/x.txt", "w");
+  OUTPUTFILE3 = fopen("output/many-time-earthquake/half/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/many-time-earthquake/half/friction.txt", "w");
+  OUTPUTFILE5 = fopen("output/many-time-earthquake/half/v_No5.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
@@ -276,6 +278,12 @@ int main()
         fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
         fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, theta[s]);
         fprintf(OUTPUTFILE4, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, friction_array[s]);
+
+        if (s == 5)
+        {
+
+          fprintf(OUTPUTFILE5, "%25.22lf\t%25.22lf\n", Time + dt, v[s]);
+        }
       }
 
       // 逆方向へ滑るのを防ぐため
@@ -302,6 +310,7 @@ int main()
   fclose(OUTPUTFILE2);
   fclose(OUTPUTFILE3);
   fclose(OUTPUTFILE4);
+  fclose(OUTPUTFILE5);
 }
 
 //////////////////////////////////////////////
