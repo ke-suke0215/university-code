@@ -73,28 +73,28 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    // if (s < N / 2)
-    // {
-    //   param_a[s] = param_a_general;
-    //   param_b[s] = param_b_general;
-    //   l[s] = l_general;
-    // }
-    // else if (s >= N / 2)
-    // {
-    //   param_a[s] = param_a_slow;
-    //   param_b[s] = param_b_slow;
-    //   l[s] = l_slow;
-    // }
-    // else
-    // {
-    //   printf("不適切な値で計算が行われています。");
-    //   return 0;
-    // }
+    if (s < N / 2)
+    {
+      param_a[s] = param_a_general;
+      param_b[s] = param_b_general;
+      l[s] = l_general;
+    }
+    else if (s >= N / 2)
+    {
+      param_a[s] = param_a_slow;
+      param_b[s] = param_b_slow;
+      l[s] = l_slow;
+    }
+    else
+    {
+      printf("不適切な値で計算が行われています。");
+      return 0;
+    }
 
     // 全てゆっくり地震のパターン
-    param_a[s] = param_a_slow;
-    param_b[s] = param_b_slow;
-    l[s] = l_slow;
+    // param_a[s] = param_a_slow;
+    // param_b[s] = param_b_slow;
+    // l[s] = l_slow;
 
     //全て通常の地震のパターン
     // param_a[s] = param_a_general;
@@ -121,11 +121,11 @@ int main()
   FILE *OUTPUTFILE4;
   FILE *OUTPUTFILE5;
 
-  OUTPUTFILE1 = fopen("output/many-time-earthquake/on-hold/v.txt", "w");
-  OUTPUTFILE2 = fopen("output/many-time-earthquake/on-hold/x.txt", "w");
-  OUTPUTFILE3 = fopen("output/many-time-earthquake/on-hold/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/many-time-earthquake/on-hold/friction.txt", "w");
-  OUTPUTFILE5 = fopen("output/many-time-earthquake/on-hold/v_No5.txt", "w");
+  OUTPUTFILE1 = fopen("output/many-time-earthquake/half/v.txt", "w");
+  OUTPUTFILE2 = fopen("output/many-time-earthquake/half/x.txt", "w");
+  OUTPUTFILE3 = fopen("output/many-time-earthquake/half/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/many-time-earthquake/half/friction.txt", "w");
+  OUTPUTFILE5 = fopen("output/many-time-earthquake/half/v_No5.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
