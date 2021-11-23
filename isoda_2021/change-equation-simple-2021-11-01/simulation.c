@@ -46,12 +46,12 @@ int main()
   special_v = pow(10.0, -1.0); // 特徴的な速度
   d = 0.5;                     //バネの自然長
 
-  l_general = 1.0; // 通常の地震での無次元化されたばね定数
-  l_slow = 1.0;    // ゆっくり地震での無次元化されたばね定数
+  l_general = 10.0; // 通常の地震での無次元化されたばね定数
+  l_slow = 10.0;    // ゆっくり地震での無次元化されたばね定数
 
   Time = 0.0;              // 時間計測用変数
-  t_start = 800.0;         // 計測開始時間
-  t_max = 5000.0;          // 計測終了時間
+  t_start = 1000.0;        // 計測開始時間
+  t_max = 10000.0;         // 計測終了時間
   dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
   zero = pow(10.0, -10.0); // プレートが逆に滑るのを防ぐための値
@@ -73,23 +73,23 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    // if (s < N / 2)
-    // {
-    //   param_a[s] = param_a_general;
-    //   param_b[s] = param_b_general;
-    //   l[s] = l_general;
-    // }
-    // else if (s >= N / 2)
-    // {
-    //   param_a[s] = param_a_slow;
-    //   param_b[s] = param_b_slow;
-    //   l[s] = l_slow;
-    // }
-    // else
-    // {
-    //   printf("不適切な値で計算が行われています。");
-    //   return 0;
-    // }
+    if (s < N / 2)
+    {
+      param_a[s] = param_a_general;
+      param_b[s] = param_b_general;
+      l[s] = l_general;
+    }
+    else if (s >= N / 2)
+    {
+      param_a[s] = param_a_slow;
+      param_b[s] = param_b_slow;
+      l[s] = l_slow;
+    }
+    else
+    {
+      printf("不適切な値で計算が行われています。");
+      return 0;
+    }
 
     // 全てゆっくり地震のパターン
     // param_a[s] = param_a_slow;
@@ -97,9 +97,9 @@ int main()
     // l[s] = l_slow;
 
     //全て通常の地震のパターン
-    param_a[s] = param_a_general;
-    param_b[s] = param_b_general;
-    l[s] = l_general;
+    // param_a[s] = param_a_general;
+    // param_b[s] = param_b_general;
+    // l[s] = l_general;
 
     //////// x, v, θ に値を代入 ////////
 
@@ -108,7 +108,7 @@ int main()
 
     // 0~1の乱数を用いて値を代入
     random_num = (double)rand() / (double)RAND_MAX;
-    x[s] = random_num * 20;
+    x[s] = random_num;
   }
 
   ////////// 値の代入終了 ////////////
@@ -119,13 +119,11 @@ int main()
   FILE *OUTPUTFILE2;
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
-  FILE *OUTPUTFILE5;
 
-  OUTPUTFILE1 = fopen("output/many-time-earthquake/general/v.txt", "w");
-  OUTPUTFILE2 = fopen("output/many-time-earthquake/general/x.txt", "w");
-  OUTPUTFILE3 = fopen("output/many-time-earthquake/general/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/many-time-earthquake/general/friction.txt", "w");
-  OUTPUTFILE5 = fopen("output/many-time-earthquake/general/v_No5.txt", "w");
+  OUTPUTFILE1 = fopen("output/many-time-earthquake/l-1/half_l-1.0/v.txt", "w");
+  OUTPUTFILE2 = fopen("output/many-time-earthquake/l-1/half_l-1.0/x.txt", "w");
+  OUTPUTFILE3 = fopen("output/many-time-earthquake/l-1/half_l-1.0/theta.txt", "w");
+  OUTPUTFILE4 = fopen("output/many-time-earthquake/l-1/half_l-1.0/friction.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
@@ -266,25 +264,25 @@ int main()
 
     for (s = 0; s < N; s++)
     {
+      // 各ブロックの摩擦力を計算
       friction_array[s] = param_c + param_a[s] * log(1 + v[s] / special_v) + param_b[s] * log(theta[s]);
 
+      // そのまま出力だとデータが多すぎるため、数を減らして出力
+      if (cal_count % 100000 == 0)
+      {
+        fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time, v[s]);
+        fprintf(OUTPUTFILE4, "%d\t%25.22lf\t%25.22lf\n", s, Time, friction_array[s]);
+      }
+      if (cal_count % 200000 == 0)
+      {
+        fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time, theta[s]);
+        fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time, x[s]);
+      }
+
+      // 次の時刻の位置、速度、摩擦を計算
       x[s] = x[s] + (1.0 / 6.0) * (rk_k[s][0] + 2.0 * rk_k[s][1] + 2.0 * rk_k[s][2] + rk_k[s][3]);
       v[s] = v[s] + (1.0 / 6.0) * (rk_l[s][0] + 2.0 * rk_l[s][1] + 2.0 * rk_l[s][2] + rk_l[s][3]);
       theta[s] = theta[s] + (1.0 / 6.0) * (rk_m[s][0] + 2.0 * rk_m[s][1] + 2.0 * rk_m[s][2] + rk_m[s][3]);
-
-      if (cal_count % 100000 == 0)
-      {
-        fprintf(OUTPUTFILE1, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, v[s]);
-        fprintf(OUTPUTFILE2, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, x[s]);
-        fprintf(OUTPUTFILE3, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, theta[s]);
-        fprintf(OUTPUTFILE4, "%d\t%25.22lf\t%25.22lf\n", s, Time + dt, friction_array[s]);
-
-        if (s == 5)
-        {
-
-          fprintf(OUTPUTFILE5, "%25.22lf\t%25.22lf\n", Time + dt, v[s]);
-        }
-      }
 
       // 逆方向へ滑るのを防ぐため
       if (v[s] < zero)
@@ -310,7 +308,6 @@ int main()
   fclose(OUTPUTFILE2);
   fclose(OUTPUTFILE3);
   fclose(OUTPUTFILE4);
-  fclose(OUTPUTFILE5);
 }
 
 //////////////////////////////////////////////
