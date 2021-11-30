@@ -42,15 +42,15 @@ int main()
   param_b_slow = pow(10.0, -3.0);    // ゆっくり地震の摩擦パラメータb
   param_c = pow(10.0, -3.0);         // 摩擦パラメータc
 
-  plate_v = pow(10.0, -2.0);   // プレートの速度
-  special_v = pow(10.0, -1.0); // 特徴的な速度
-  d = 0.5;                     //バネの自然長
+  plate_v = pow(10.0, -2.0) * 5; // プレートの速度
+  special_v = pow(10.0, -1.0);   // 特徴的な速度
+  d = 0.5;                       //バネの自然長
 
   l_general = 2000.0; // 通常の地震での無次元化されたばね定数
   l_slow = 0.2;       // ゆっくり地震での無次元化されたばね定数
 
   Time = 0.0;              // 時間計測用変数
-  t_start = 100.0;         // 計測開始時間
+  t_start = 20.0;          // 計測開始時間
   t_max = 1000.0;          // 計測終了時間
   dt = pow(10.0, -5);      // 時間の刻み幅
   cal_count = 0;           // 計算回数のカウント
@@ -73,23 +73,23 @@ int main()
     // }
 
     // 通常の地震とゆっくり地震半分ずつ
-    if (s < N / 2)
-    {
-      param_a[s] = param_a_general;
-      param_b[s] = param_b_general;
-      l[s] = l_general;
-    }
-    else if (s >= N / 2)
-    {
-      param_a[s] = param_a_slow;
-      param_b[s] = param_b_slow;
-      l[s] = l_slow;
-    }
-    else
-    {
-      printf("不適切な値で計算が行われています。");
-      return 0;
-    }
+    // if (s < N / 2)
+    // {
+    //   param_a[s] = param_a_general;
+    //   param_b[s] = param_b_general;
+    //   l[s] = l_general;
+    // }
+    // else if (s >= N / 2)
+    // {
+    //   param_a[s] = param_a_slow;
+    //   param_b[s] = param_b_slow;
+    //   l[s] = l_slow;
+    // }
+    // else
+    // {
+    //   printf("不適切な値で計算が行われています。");
+    //   return 0;
+    // }
 
     // 全てゆっくり地震のパターン
     // param_a[s] = param_a_slow;
@@ -97,9 +97,9 @@ int main()
     // l[s] = l_slow;
 
     //全て通常の地震のパターン
-    // param_a[s] = param_a_general;
-    // param_b[s] = param_a_general;
-    // l[s] = l_general;
+    param_a[s] = param_a_general;
+    param_b[s] = param_b_general;
+    l[s] = l_general;
 
     //////// x_initial, x, v, θ に値を代入 ////////
 
@@ -129,10 +129,10 @@ int main()
   FILE *OUTPUTFILE3;
   FILE *OUTPUTFILE4;
 
-  OUTPUTFILE1 = fopen("output/a=0.001_b-change/long-time/half/x.txt", "w");
-  OUTPUTFILE2 = fopen("output/a=0.001_b-change/long-time/half/v.txt", "w");
-  OUTPUTFILE3 = fopen("output/a=0.001_b-change/long-time/half/theta.txt", "w");
-  OUTPUTFILE4 = fopen("output/a=0.001_b-change/long-time/half/friction.txt", "w");
+  OUTPUTFILE1 = fopen("output/hold-on/general/x_long.txt", "w");
+  OUTPUTFILE2 = fopen("output/hold-on/general/v_long.txt", "w");
+  OUTPUTFILE3 = fopen("output/hold-on/general/theta_long.txt", "w");
+  OUTPUTFILE4 = fopen("output/hold-on/general/friction_long.txt", "w");
 
   //////////////////////////////////
   ///// ブロックを動かすループ開始 /////
